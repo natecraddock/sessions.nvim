@@ -31,7 +31,7 @@ local config = {
     events = { "VimLeavePre" },
 
     -- default session filepath (relative)
-    session_name = "",
+    session_filepath = "",
 }
 
 local M = {}
@@ -54,8 +54,8 @@ end
 local get_session_path = function(path)
     if path and path ~= "" then
         path = vim.fn.expand(path, ":p")
-    elseif config.session_name ~= "" then
-        path = vim.fn.expand(config.session_name, ":p")
+    elseif config.session_filepath ~= "" then
+        path = vim.fn.expand(config.session_filepath, ":p")
     end
 
     if path and path ~= "" then

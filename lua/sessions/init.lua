@@ -78,18 +78,8 @@ M.write_session_file = function()
 end
 
 -- start autosaving changes to the session file
-M.start_autosave = function(path, opts)
+local start_autosave = function(path, opts)
     opts = opts or {}
-
-    if opts.validate_path then
-        local original = path
-        path = get_session_path(path)
-        if not path then
-            vim.notify(string.format("sessions.nvim: session file '%s' not found", original), levels.ERROR)
-            return
-        end
-    end
-    session_file_path = path
 
     -- save future changes
     local events = vim.fn.join(config.events, ",")
@@ -105,12 +95,19 @@ M.start_autosave = function(path, opts)
 end
 
 -- stop autosaving changes to the session file
-M.stop_autosave = function()
+M.stop_autosave = function(opts)
+    opts = opts or {}
+
     if not session_file_path then return end
     vim.cmd[[
     silent! autocmd! sessions.nvim
     silent! augroup! sessions.nvim
     ]]
+
+    -- save before stopping
+    if not opts.nosave then
+        M.write_session_file()
+    end
 
     session_file_path = nil
 end
@@ -129,7 +126,7 @@ M.save = function(path, opts)
     M.write_session_file()
 
     if opts.noautosave then return end
-    M.start_autosave(path)
+    start_autosave(path)
 end
 
 -- load a session file from the given path
@@ -148,7 +145,7 @@ M.load = function(path, opts)
     vim.cmd(string.format("silent! source %s", path))
 
     if opts.noautosave then return end
-    M.start_autosave(path)
+    start_autosave(path)
 end
 
 local subcommands = { "save", "load", "start", "stop" }
@@ -176,17 +173,37 @@ M.complete = function(lead, line, pos)
     return {}
 end
 
-M.parse_args = function(subcommand, path)
-    if subcommand == "save" then
-        M.save(path)
-    elseif subcommand == "load" then
-        M.load(path)
-    elseif subcommand == "start" then
-        M.start_autosave(path, { validate_path = true })
-    elseif subcommand == "stop" then
-        M.stop_autosave()
+M.parse_args = function(subcommand, bang, path)
+    if bang ~= "" then
+        bang = true
     else
-        vim.notify(string.format("sessions.nvim: invalid subcommand '%s'", subcommand), levels.ERROR)
+        bang = false
+    end
+
+    if path and #path ~= 0 then
+        path = path[1]
+    else
+        path = nil
+    end
+
+    if subcommand == "save" then
+        if bang then
+            M.save(path, { noautosave = true })
+        else
+            M.save(path)
+        end
+    elseif subcommand == "load" then
+        if bang then
+            M.load(path, { noautosave = true })
+        else
+            M.load(path)
+        end
+    elseif subcommand == "stop" then
+        if bang then
+            M.stop_autosave({ nosave = true })
+        else
+            M.stop_autosave()
+        end
     end
 end
 
@@ -196,7 +213,9 @@ M.setup = function(opts)
 
     -- register commands
     vim.cmd[[
-    command! -nargs=+ -complete=customlist,v:lua.require'sessions'.complete Sessions lua require("sessions").parse_args(<f-args>)
+    command! -bang -nargs=* -complete=file SessionsSave lua require("sessions").parse_args("save", "<bang>", { <f-args> })
+    command! -bang -nargs=* -complete=file SessionsLoad lua require("sessions").parse_args("load", "<bang>", { <f-args> })
+    command! -bang SessionsStop lua require("sessions").parse_args("stop", "<bang>")
     ]]
 end
 

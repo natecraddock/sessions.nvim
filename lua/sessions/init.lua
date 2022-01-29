@@ -1,26 +1,3 @@
---[[
-Why?
-* folke/persistence.nvim: too automatic and not enough control
-* topope/obsession: try
-* mini-session: not enough control
-* rmagatii/auto-session: automatic and bloated
-* Shatur/neovim-session-manager: combo of workspace and session
-
-Name:
-* sessions.nvim: Simple
-* intercession.nvim: clever
-
-Goals:
-* Call :Sessions save [path] to save
-* Call :Sessions load [path] to load
-
-normal session files are created. The difference is when you call :Sessions load
-autocommands are registered which automatically save the session on window, buffer, etc. changes.
-The same for when you do :Sessions save
-
-Otherwise it's just a normal session! just a tiny bit of pixie dust
-]]
-
 local util = require("sessions.util")
 
 local levels = vim.log.levels

@@ -34,9 +34,19 @@ around `:mksession` and `:source`, not to provide workspace management.
 project directory if that is what you desire. It also wouldn't be difficult to
 write an autocommand to load session files on nvim startup.
 
-## Demo
+## Example Usage
 
-Coming soon!
+Work on a project until ready to take a break. Run `:SessionsSave .session` to
+save the current state to a hidden file `.session`. nvim may be closed.
+
+Later return to the same path and open nvim. Run `:SessionsLoad .session` to
+load the saved session. Now any changes to the window layout, buffers, tabs,
+etc. will be saved when closing nvim.
+
+See
+[natecraddock/workspaces.nvim](https://github.com/natecraddock/workspaces.nvim)
+for an easy method of automatically restoring a session in saved workspace
+folders.
 
 ## Installation
 
@@ -93,7 +103,8 @@ The setup function registers the following commands:
 
 * `:SessionsStop[!]`
 
-  Stops session autosaving if enabled.
+  Stops session autosaving if enabled. The current state will be saved before
+  stopping.
 
 See `:h sessions-usage` for more information on the commands.
 

@@ -124,6 +124,10 @@ sessions.stop_autosave(opts: table)
 
 See `:h sessions-api` for more information on the Lua API.
 
+## Demo
+
+Coming soon!
+
 ## Related
 
 If you want a more automatic solution, or something else, these plugins may interest you:

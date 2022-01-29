@@ -62,28 +62,26 @@ local get_session_path = function(path)
         if not ensure_path(path) then
             return nil
         end
-        if vim.fn.filereadable(path) == 0 then
-            return nil
-        end
         return path
     end
 
     return nil
 end
 
+-- set to nil when no session recording is active
+local session_file_path = nil
+
 -- TODO: when an nvim update provides autocommand registration from lua, make
 -- this function local to avoid issues setting the session_file_path
-local session_file_path = ""
-M.write_session_file = function(path)
-    if path then
-        session_file_path = path
-    end
+M.write_session_file = function()
     vim.cmd(string.format("mksession! %s", session_file_path))
 end
 
 -- start autosaving changes to the session file
-M.start_autosave = function(path)
-    if path then
+M.start_autosave = function(path, opts)
+    opts = opts or {}
+
+    if opts.validate_path then
         local original = path
         path = get_session_path(path)
         if not path then
@@ -91,7 +89,9 @@ M.start_autosave = function(path)
             return
         end
     end
+    session_file_path = path
 
+    -- save future changes
     local events = vim.fn.join(config.events, ",")
     vim.cmd(string.format([[
     augroup sessions.nvim
@@ -99,14 +99,20 @@ M.start_autosave = function(path)
     autocmd %s * lua require("sessions").write_session_file()
     augroup end
     ]], events))
+
+    -- save now
+    M.write_session_file()
 end
 
 -- stop autosaving changes to the session file
 M.stop_autosave = function()
+    if not session_file_path then return end
     vim.cmd[[
     silent! autocmd! sessions.nvim
     silent! augroup! sessions.nvim
     ]]
+
+    session_file_path = nil
 end
 
 -- save or overwrite a session file to the given path
@@ -115,14 +121,15 @@ M.save = function(path, opts)
 
     path = get_session_path(path)
     if not path then
-        vim.notify("sessions.nvim: could not create session file", levels.ERROR)
+        vim.notify("sessions.nvim: failed to save session file", levels.ERROR)
         return
     end
 
-    M.write_session_file(path)
+    session_file_path = path
+    M.write_session_file()
 
     if opts.noautosave then return end
-    M.start_autosave()
+    M.start_autosave(path)
 end
 
 -- load a session file from the given path
@@ -137,11 +144,11 @@ M.load = function(path, opts)
         return
     end
 
-    vim.cmd(string.format("silent! source %s", path))
     session_file_path = path
+    vim.cmd(string.format("silent! source %s", path))
 
     if opts.noautosave then return end
-    M.start_autosave()
+    M.start_autosave(path)
 end
 
 local subcommands = { "save", "load", "start", "stop" }
@@ -175,7 +182,7 @@ M.parse_args = function(subcommand, path)
     elseif subcommand == "load" then
         M.load(path)
     elseif subcommand == "start" then
-        M.start_autosave(path)
+        M.start_autosave(path, { validate_path = true })
     elseif subcommand == "stop" then
         M.stop_autosave()
     else

@@ -126,7 +126,12 @@ See `:h sessions-api` for more information on the Lua API.
 
 ## Demo
 
-Coming soon!
+https://user-images.githubusercontent.com/7967463/151680092-71963df1-6459-4a57-bea9-a53e2a16fb2c.mp4
+
+In this demo video I create a sessions file at `.nvim/session` relative to my current
+directory. I then repeatedly quit nvim, reopen and load the session, modify the layout,
+and close nvim. Halfway through I no longer provide a path to `:SessionsLoad` because I
+have configured my `session_filepath` to be ".nvim/session".
 
 ## Related
 

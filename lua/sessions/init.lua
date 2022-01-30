@@ -28,7 +28,9 @@ end
 -- given a path (possibly empty or nil) returns the absolute session path or
 -- the default session path if it exists. Will create intermediate directories
 -- as needed. Returns nil otherwise.
-local get_session_path = function(path)
+local get_session_path = function(path, ensure)
+    ensure = ensure or true
+
     if path and path ~= "" then
         path = vim.fn.expand(path, ":p")
     elseif config.session_filepath ~= "" then
@@ -36,7 +38,7 @@ local get_session_path = function(path)
     end
 
     if path and path ~= "" then
-        if not ensure_path(path) then
+        if ensure and not ensure_path(path) then
             return nil
         end
         return path
@@ -71,11 +73,12 @@ end
 
 -- stop autosaving changes to the session file
 M.stop_autosave = function(opts)
+    if not session_file_path then return end
+
     opts = util.merge({
         save = true,
     }, opts)
 
-    if not session_file_path then return end
     vim.cmd[[
     silent! autocmd! sessions.nvim
     silent! augroup! sessions.nvim
@@ -115,8 +118,8 @@ M.load = function(path, opts)
         silent = false,
     }, opts)
 
-    path = get_session_path(path)
-    if not path then
+    path = get_session_path(path, false)
+    if not path or vim.fn.filereadable(path) == 0 then
         if not opts.silent then
             vim.notify(string.format("sessions.nvim: file '%s' does not exist", path))
         end

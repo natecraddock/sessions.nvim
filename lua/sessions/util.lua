@@ -34,4 +34,13 @@ M.slice = function(tbl, s, e)
     return { unpack(tbl, s, e) }
 end
 
+---@param default table
+---@param override table
+---@return table
+---merges override into default, overriding anything in default
+M.merge = function(default, override)
+    override = override or {}
+    return vim.tbl_deep_extend("force", {}, default, override)
+end
+
 return M

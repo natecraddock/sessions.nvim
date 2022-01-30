@@ -55,9 +55,7 @@ M.write_session_file = function()
 end
 
 -- start autosaving changes to the session file
-local start_autosave = function(path, opts)
-    opts = opts or {}
-
+local start_autosave = function()
     -- save future changes
     local events = vim.fn.join(config.events, ",")
     vim.cmd(string.format([[
@@ -73,7 +71,9 @@ end
 
 -- stop autosaving changes to the session file
 M.stop_autosave = function(opts)
-    opts = opts or {}
+    opts = util.merge({
+        save = true,
+    }, opts)
 
     if not session_file_path then return end
     vim.cmd[[
@@ -82,7 +82,7 @@ M.stop_autosave = function(opts)
     ]]
 
     -- save before stopping
-    if not opts.nosave then
+    if opts.save then
         M.write_session_file()
     end
 
@@ -91,7 +91,9 @@ end
 
 -- save or overwrite a session file to the given path
 M.save = function(path, opts)
-    opts = opts or {}
+    opts = util.merge({
+        autosave = true,
+    }, opts)
 
     path = get_session_path(path)
     if not path then
@@ -102,13 +104,16 @@ M.save = function(path, opts)
     session_file_path = path
     M.write_session_file()
 
-    if opts.noautosave then return end
-    start_autosave(path)
+    if not opts.autosave then return end
+    start_autosave()
 end
 
 -- load a session file from the given path
 M.load = function(path, opts)
-    opts = opts or {}
+    opts = util.merge({
+        autosave = true,
+        silent = false,
+    }, opts)
 
     path = get_session_path(path)
     if not path then
@@ -121,8 +126,8 @@ M.load = function(path, opts)
     session_file_path = path
     vim.cmd(string.format("silent! source %s", path))
 
-    if opts.noautosave then return end
-    start_autosave(path)
+    if not opts.autosave then return end
+    start_autosave()
 end
 
 local subcommands = { "save", "load", "start", "stop" }
@@ -165,19 +170,19 @@ M.parse_args = function(subcommand, bang, path)
 
     if subcommand == "save" then
         if bang then
-            M.save(path, { noautosave = true })
+            M.save(path, { autosave = false })
         else
             M.save(path)
         end
     elseif subcommand == "load" then
         if bang then
-            M.load(path, { noautosave = true })
+            M.load(path, { autosave = false })
         else
             M.load(path)
         end
     elseif subcommand == "stop" then
         if bang then
-            M.stop_autosave({ nosave = true })
+            M.stop_autosave({ save = false })
         else
             M.stop_autosave()
         end
@@ -185,8 +190,7 @@ M.parse_args = function(subcommand, bang, path)
 end
 
 M.setup = function(opts)
-    opts = opts or {}
-    config = vim.tbl_deep_extend("force", {}, config, opts)
+    config = util.merge(config, opts)
 
     -- register commands
     vim.cmd[[

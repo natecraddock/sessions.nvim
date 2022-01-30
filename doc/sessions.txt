@@ -103,6 +103,10 @@ Default options. >
         save = true,
     }
 <
+sessions.recording(): bool                              *sessions.recording()*
+
+Returns true if session recording is enabled.
+
 ==============================================================================
 EXTRA                                                         *sessions-extra*
 

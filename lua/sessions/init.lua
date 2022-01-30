@@ -133,6 +133,12 @@ M.load = function(path, opts)
     start_autosave()
 end
 
+---@returns bool
+---return true if currently recording a session
+M.recording = function()
+    return session_file_path ~= nil
+end
+
 local subcommands = { "save", "load", "start", "stop" }
 
 local subcommand_complete = function(lead)

@@ -34,6 +34,9 @@ around `:mksession` and `:source`, not to provide workspace management.
 project directory if that is what you desire. It also wouldn't be difficult to
 write an autocommand to load session files on nvim startup.
 
+This readme covers *most* of the features of sessions.nvim, but full
+documentation is found in the help file `:h sessions`.
+
 ## Example Usage
 
 Work on a project until ready to take a break. Run `:SessionsSave .session` to
@@ -120,6 +123,8 @@ sessions.save(path: string, opts: table)
 sessions.load(path: string, opts: table)
 
 sessions.stop_autosave(opts: table)
+
+sessions.recording(): bool
 ```
 
 See `:h sessions-api` for more information on the Lua API.

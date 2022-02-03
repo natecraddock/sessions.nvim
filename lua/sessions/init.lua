@@ -71,7 +71,8 @@ local start_autosave = function()
     M.write_session_file()
 end
 
--- stop autosaving changes to the session file
+---stop autosaving changes to the session file
+---@param opts table
 M.stop_autosave = function(opts)
     if not session_file_path then return end
 
@@ -92,7 +93,9 @@ M.stop_autosave = function(opts)
     session_file_path = nil
 end
 
--- save or overwrite a session file to the given path
+---save or overwrite a session file to the given path
+---@param path string|nil
+---@param opts table
 M.save = function(path, opts)
     opts = util.merge({
         autosave = true,
@@ -111,7 +114,9 @@ M.save = function(path, opts)
     start_autosave()
 end
 
--- load a session file from the given path
+---load a session file from the given path
+---@param path string|nil
+---@param opts table
 M.load = function(path, opts)
     opts = util.merge({
         autosave = true,
@@ -133,8 +138,8 @@ M.load = function(path, opts)
     start_autosave()
 end
 
----@returns bool
 ---return true if currently recording a session
+---@returns bool
 M.recording = function()
     return session_file_path ~= nil
 end

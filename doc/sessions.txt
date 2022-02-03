@@ -78,11 +78,17 @@ The session commands may also be accessed from Lua:
 
 local sessions = require("sessions")
 
-For all API functions the path has the same behavior as with commands. If nil
-or empty the configured default path will be used.
+sessions.setup(opts: table) ~
 
-sessions.save(path: string, opts: table)                     *sessions.save()*
-sessions.load(path: string, opts: table)                     *sessions.load()*
+Setup custom configuration and register user commands.
+
+
+sessions.save(path: string, opts: table) ~
+sessions.load(path: string, opts: table) ~
+
+Save or load a session to the given path. The path has the same behavior as
+with user commands. If nil or empty the configured default path will be used.
+If no default path is given, no session will be saved.
 
 Both |sessions.save()| and |sessions.load()| accept the same table of
 options with the following defaults. >
@@ -94,8 +100,9 @@ options with the following defaults. >
         silent = false,
     }
 <
+sessions.stop_autosave(opts: table) ~
 
-sessions.stop_autosave(opts: table)                 *sessions.stop_autosave()*
+Stop recording and optionally save current session state.
 
 Default options. >
     {
@@ -103,7 +110,7 @@ Default options. >
         save = true,
     }
 <
-sessions.recording(): bool                              *sessions.recording()*
+sessions.recording(): bool ~
 
 Returns true if session recording is enabled.
 

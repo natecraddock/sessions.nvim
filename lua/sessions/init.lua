@@ -117,6 +117,7 @@ end
 ---load a session file from the given path
 ---@param path string|nil
 ---@param opts table
+---@return boolean
 M.load = function(path, opts)
     opts = util.merge({
         autosave = true,
@@ -128,14 +129,17 @@ M.load = function(path, opts)
         if not opts.silent then
             vim.notify(string.format("sessions.nvim: file '%s' does not exist", path))
         end
-        return
+        return false
     end
 
     session_file_path = path
     vim.cmd(string.format("silent! source %s", path))
 
-    if not opts.autosave then return end
-    start_autosave()
+    if opts.autosave then
+        start_autosave()
+    end
+
+    return true
 end
 
 ---return true if currently recording a session

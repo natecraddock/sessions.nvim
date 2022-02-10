@@ -84,7 +84,7 @@ Setup custom configuration and register user commands.
 
 
 sessions.save(path: string, opts: table) ~
-sessions.load(path: string, opts: table) ~
+sessions.load(path: string, opts: table): boolean ~
 
 Save or load a session to the given path. The path has the same behavior as
 with user commands. If nil or empty the configured default path will be used.
@@ -100,6 +100,10 @@ options with the following defaults. >
         silent = false,
     }
 <
+sessions.load() returns a boolean. If the result is true, the session loaded
+successfully. If false, the session could not load, or the given session file
+does not exist.
+
 sessions.stop_autosave(opts: table) ~
 
 Stop recording and optionally save current session state.

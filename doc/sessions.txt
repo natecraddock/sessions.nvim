@@ -78,19 +78,24 @@ The session commands may also be accessed from Lua:
 
 local sessions = require("sessions")
 
-sessions.setup(opts: table) ~
+sessions.setup(opts: {table})
+    Setup custom configuration and register user commands. The details of opts
+    are document in |sessions-configuration|.
 
-Setup custom configuration and register user commands.
+sessions.save(path: {string}, opts: {table})
+    Save a session to the given path. If path is nil the configured default
+    path will be used if it exists. If no path is configured, no session will
+    be saved.
 
+sessions.load(path: {string}, opts: {table}): {boolean}
+    Load a session from the given path. If path is nil the configured default
+    path will be used if it exists. If no path is configured, no session will
+    be loaded.
 
-sessions.save(path: string, opts: table) ~
-sessions.load(path: string, opts: table): boolean ~
+    Returns true if the session loaded successfully, and false if no session
+    was able to load.
 
-Save or load a session to the given path. The path has the same behavior as
-with user commands. If nil or empty the configured default path will be used.
-If no default path is given, no session will be saved.
-
-Both |sessions.save()| and |sessions.load()| accept the same table of
+Both sessions.save() and sessions.load() accept the same table of
 options with the following defaults. >
     {
         -- start autosaving state to the session file
@@ -99,24 +104,18 @@ options with the following defaults. >
         -- set to true to disable warning and error messages
         silent = false,
     }
+
+sessions.stop_autosave(opts: {table})
+    Stop recording and optionally save current session state.
+
+    Default options. >
+        {
+            -- save the current state before stopping autosaving
+            save = true,
+        }
 <
-sessions.load() returns a boolean. If the result is true, the session loaded
-successfully. If false, the session could not load, or the given session file
-does not exist.
-
-sessions.stop_autosave(opts: table) ~
-
-Stop recording and optionally save current session state.
-
-Default options. >
-    {
-        -- save the current state before stopping autosaving
-        save = true,
-    }
-<
-sessions.recording(): bool ~
-
-Returns true if session recording is enabled.
+sessions.recording(): {bool}
+    Returns true if session recording is enabled.
 
 ==============================================================================
 EXTRA                                                         *sessions-extra*

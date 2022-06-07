@@ -50,9 +50,7 @@ end
 -- set to nil when no session recording is active
 local session_file_path = nil
 
--- TODO: when an nvim update provides autocommand registration from lua, make
--- this function local to avoid issues setting the session_file_path
-M.write_session_file = function()
+local write_session_file = function()
     vim.cmd(string.format("mksession! %s", session_file_path))
 end
 
@@ -60,15 +58,18 @@ end
 local start_autosave = function()
     -- save future changes
     local events = vim.fn.join(config.events, ",")
-    vim.cmd(string.format([[
-    augroup sessions.nvim
-    autocmd!
-    autocmd %s * lua require("sessions").write_session_file()
-    augroup end
-    ]], events))
+    local augroup = vim.api.nvim_create_augroup("sessions.nvim", {})
+    vim.api.nvim_create_autocmd(
+        string.format("%s", events),
+        {
+            group = augroup,
+            pattern = "*",
+            callback = write_session_file,
+        }
+    )
 
     -- save now
-    M.write_session_file()
+    write_session_file()
 end
 
 ---stop autosaving changes to the session file
@@ -80,14 +81,12 @@ M.stop_autosave = function(opts)
         save = true,
     }, opts)
 
-    vim.cmd[[
-    silent! autocmd! sessions.nvim
-    silent! augroup! sessions.nvim
-    ]]
+    vim.api.nvim_clear_autocmds({ group = "sessions.nvim" })
+    vim.api.nvim_del_augroup_by_name("sessions.nvim")
 
     -- save before stopping
     if opts.save then
-        M.write_session_file()
+        write_session_file()
     end
 
     session_file_path = nil
@@ -108,7 +107,7 @@ M.save = function(path, opts)
     end
 
     session_file_path = path
-    M.write_session_file()
+    write_session_file()
 
     if not opts.autosave then return end
     start_autosave()
@@ -167,8 +166,6 @@ M.complete = function(lead, line, pos)
     if not index or pos < index then
         return subcommand_complete(lead)
     end
-
-    -- TODO: path completion?
 
     return {}
 end

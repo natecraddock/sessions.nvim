@@ -90,6 +90,8 @@ require("sessions").setup({
 })
 ```
 
+This version is compatible with Neovim 0.6.
+
 ## Commands
 
 The setup function registers the following commands:

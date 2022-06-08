@@ -37,6 +37,10 @@ write an autocommand to load session files on nvim startup.
 This readme covers *most* of the features of sessions.nvim, but full
 documentation is found in the help file `:h sessions`.
 
+Note that this plugin is small in scope and complexity. It has been stable for a
+long time. Just because I am not making changes doesn't mean it's been
+abandoned! It was designed to be small and stable, and it will stay that way.
+
 sessions.nvim requires nvim 0.7.0 as a minimum. If you have an older version of
 nvim, you may use the [commit tagged
 0.2](https://github.com/natecraddock/sessions.nvim/commit/4b400a37c26c3b942769abb8d78b63740ed4cd70).

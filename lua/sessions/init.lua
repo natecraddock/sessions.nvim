@@ -7,8 +7,12 @@ local config = {
     -- events which trigger a session save
     events = { "VimLeavePre" },
 
-    -- default session filepath (relative)
+    -- default session filepath
     session_filepath = "",
+
+    -- treat the default session filepath as an absolute path
+    -- if absolute, all session files will be stored in a single directory
+    absolute = false,
 }
 
 local M = {}
@@ -25,6 +29,11 @@ local ensure_path = function(path)
     return name ~= ""
 end
 
+-- converts a given filepath to a string safe to be used as a session filename
+local safe_path = function(path)
+    return path:gsub(util.path.sep, "."):sub(2)
+end
+
 -- given a path (possibly empty or nil) returns the absolute session path or
 -- the default session path if it exists. Will create intermediate directories
 -- as needed. Returns nil otherwise.
@@ -34,7 +43,12 @@ local get_session_path = function(path, ensure)
     if path and path ~= "" then
         path = vim.fn.expand(path, ":p")
     elseif config.session_filepath ~= "" then
-        path = vim.fn.expand(config.session_filepath, ":p")
+        if config.absolute then
+            local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":p")
+            path = vim.fn.expand(config.session_filepath, ":p") .. util.path.sep .. safe_path(cwd) .. "session"
+        else
+            path = vim.fn.expand(config.session_filepath, ":p")
+        end
     end
 
     if path and path ~= "" then

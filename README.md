@@ -81,11 +81,15 @@ The setup function accepts a table to modify the default configuration:
     -- other autocmd event
     events = { "VimLeavePre" },
 
-    -- default session filepath (relative)
+    -- default session filepath
     --
     -- if a path is provided here, then the path argument for commands and API
     -- functions will use session_filepath as a default if no path is provided.
     session_filepath = "",
+
+    -- treat the default session filepath as an absolute path
+    -- if true, all session files will be stored in a single directory
+    absolute = false,
 }
 ```
 
@@ -99,7 +103,19 @@ require("sessions").setup({
 })
 ```
 
-This version is compatible with Neovim 0.6.
+When absolute is true, the `session_filepath` will store all session files.
+In the following example, all session files will be stored in the nvim data/sessions
+directory (`~/.local/share/nvim/sessions` on a Unix-like system)
+
+```lua
+require("sessions").setup({
+    events = { "WinEnter" },
+    session_filepath = vim.fn.stdpath("data") .. "/sessions",
+    absolute = true,
+})
+```
+
+This version is compatible with Neovim 0.6 and newer.
 
 ## Commands
 

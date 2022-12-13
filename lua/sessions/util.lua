@@ -1,17 +1,21 @@
 local M = {}
 
+M.windows = (function()
+    if jit then
+        local os = string.lower(jit.os)
+        return os == "windows"
+    else
+        return "\\" == package.config:sub(1, 1)
+    end
+end)()
+
 -- system dependent path separator from plenary.nvim
 M.path = {}
 M.path.sep = (function()
-    if jit then
-        local os = string.lower(jit.os)
-        if os == "linux" or os == "osx" or os == "bsd" then
-            return "/"
-        else
-            return "\\"
-        end
+    if M.windows then
+        return "\\"
     else
-        return package.config:sub(1, 1)
+        return "/"
     end
 end)()
 

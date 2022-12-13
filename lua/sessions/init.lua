@@ -31,7 +31,11 @@ end
 
 -- converts a given filepath to a string safe to be used as a session filename
 local safe_path = function(path)
-    return path:gsub(util.path.sep, "."):sub(2)
+    if util.windows then
+        return path:gsub(util.path.sep, "."):sub(3)
+    else
+        return path:gsub(util.path.sep, "."):sub(2)
+    end
 end
 
 -- given a path (possibly empty or nil) returns the absolute session path or

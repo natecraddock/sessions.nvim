@@ -32,7 +32,7 @@ end
 -- converts a given filepath to a string safe to be used as a session filename
 local safe_path = function(path)
     if util.windows then
-        return path:gsub(util.path.sep, "."):sub(3)
+        return path:gsub(util.path.sep, "."):sub(4)
     else
         return path:gsub(util.path.sep, "."):sub(2)
     end

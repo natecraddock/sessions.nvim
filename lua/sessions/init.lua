@@ -75,10 +75,9 @@ end
 -- start autosaving changes to the session file
 local start_autosave = function()
     -- save future changes
-    local events = vim.fn.join(config.events, ",")
     local augroup = vim.api.nvim_create_augroup("sessions.nvim", {})
     vim.api.nvim_create_autocmd(
-        string.format("%s", events),
+        config.events,
         {
             group = augroup,
             pattern = "*",

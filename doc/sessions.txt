@@ -110,6 +110,12 @@ options with the following defaults. >
         silent = false,
     }
 
+sessions.start_autosave()
+    Start recording session.
+
+    Note: this does not save session at the point of calling,
+    only initiates recording if it was previously stopped.
+
 sessions.stop_autosave(opts: {table})
     Stop recording and optionally save current session state.
 

@@ -42,7 +42,9 @@ end
 -- the default session path if it exists. Will create intermediate directories
 -- as needed. Returns nil otherwise.
 local get_session_path = function(path, ensure)
-    ensure = ensure or true
+    if ensure == nil then
+        ensure = true
+    end
 
     if path and path ~= "" then
         path = vim.fn.expand(path, ":p")
@@ -68,25 +70,28 @@ end
 -- set to nil when no session recording is active
 local session_file_path = nil
 
-local write_session_file = function()
-    vim.cmd(string.format("mksession! %s", session_file_path))
+local write_session_file = function(path)
+    local target_path = path or session_file_path
+    vim.cmd(string.format("mksession! %s", target_path))
 end
 
--- start autosaving changes to the session file
-local start_autosave = function()
-    -- save future changes
+local start_autosave_internal = function(path)
     local augroup = vim.api.nvim_create_augroup("sessions.nvim", {})
     vim.api.nvim_create_autocmd(
         config.events,
         {
             group = augroup,
             pattern = "*",
-            callback = write_session_file,
+            callback = function() write_session_file() end,
         }
     )
 
-    -- save now
-    write_session_file()
+    session_file_path = get_session_path(path, false)
+end
+
+---start autosaving changes to the session file
+M.start_autosave = function()
+    start_autosave_internal()
 end
 
 ---stop autosaving changes to the session file
@@ -123,11 +128,11 @@ M.save = function(path, opts)
         return
     end
 
-    session_file_path = path
-    write_session_file()
+    if opts.autosave then
+        start_autosave_internal(path)
+    end
 
-    if not opts.autosave then return end
-    start_autosave()
+    write_session_file(path)
 end
 
 ---load a session file from the given path
@@ -148,11 +153,10 @@ M.load = function(path, opts)
         return false
     end
 
-    session_file_path = path
     vim.cmd(string.format("silent! source %s", path))
 
     if opts.autosave then
-        start_autosave()
+        start_autosave_internal(path)
     end
 
     return true

@@ -149,6 +149,8 @@ sessions.save(path: string, opts: table)
 
 sessions.load(path: string, opts: table)
 
+sessions.start_autosave()
+
 sessions.stop_autosave(opts: table)
 
 sessions.recording(): bool

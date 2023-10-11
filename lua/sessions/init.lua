@@ -168,72 +168,38 @@ M.recording = function()
     return session_file_path ~= nil
 end
 
-local subcommands = { "save", "load", "start", "stop" }
-
-local subcommand_complete = function(lead)
-    return vim.tbl_filter(function(item)
-        return vim.startswith(item, lead)
-    end, subcommands)
-end
-
-M.complete = function(lead, line, pos)
-    -- remove the command name from the front
-    line = string.sub(line, #"Sessions " + 1)
-    pos = pos - #"Sessions "
-
-    -- completion for subcommand names
-    if #line == 0 then return subcommands end
-    local index = string.find(line, " ")
-    if not index or pos < index then
-        return subcommand_complete(lead)
-    end
-
-    return {}
-end
-
-M.parse_args = function(subcommand, bang, path)
-    if bang ~= "" then
-        bang = true
-    else
-        bang = false
-    end
-
-    if path and #path ~= 0 then
-        path = path[1]
-    else
-        path = nil
-    end
-
-    if subcommand == "save" then
-        if bang then
-            M.save(path, { autosave = false })
-        else
-            M.save(path)
-        end
-    elseif subcommand == "load" then
-        if bang then
-            M.load(path, { autosave = false })
-        else
-            M.load(path)
-        end
-    elseif subcommand == "stop" then
-        if bang then
-            M.stop_autosave({ save = false })
-        else
-            M.stop_autosave()
-        end
-    end
-end
-
 M.setup = function(opts)
     config = util.merge(config, opts)
 
     -- register commands
-    vim.cmd[[
-    command! -bang -nargs=* -complete=file SessionsSave lua require("sessions").parse_args("save", "<bang>", { <f-args> })
-    command! -bang -nargs=* -complete=file SessionsLoad lua require("sessions").parse_args("load", "<bang>", { <f-args> })
-    command! -bang SessionsStop lua require("sessions").parse_args("stop", "<bang>")
-    ]]
+    vim.api.nvim_create_user_command(
+        "SessionsSave",
+        function(opts)
+            local path = opts.fargs[1]
+            local autosave = not opts.bang
+            require("sessions").save(path, { autosave = autosave })
+        end,
+        { bang = true, nargs = "?", complete = "file" }
+    )
+
+    vim.api.nvim_create_user_command(
+        "SessionsLoad",
+        function(opts)
+            local path = opts.fargs[1]
+            local autosave = not opts.bang
+            require("sessions").load(path, { autosave = autosave })
+        end,
+        { bang = true, nargs = "?", complete = "file" }
+    )
+
+    vim.api.nvim_create_user_command(
+        "SessionsStop",
+        function(opts)
+            local save = not opts.bang
+            require("sessions").stop_autosave({ save = save })
+        end,
+        { bang = true }
+    )
 end
 
 return M

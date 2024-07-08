@@ -76,6 +76,13 @@ local write_session_file = function(path)
 end
 
 local start_autosave_internal = function(path)
+    if config.absolute then
+        local session_dir = config.session_filepath
+        if not vim.loop.fs_stat(session_dir) then
+            vim.fn.mkdir(session_dir, "p")
+        end
+    end
+
     local augroup = vim.api.nvim_create_augroup("sessions.nvim", {})
     vim.api.nvim_create_autocmd(
         config.events,

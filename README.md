@@ -90,6 +90,10 @@ The setup function accepts a table to modify the default configuration:
     -- treat the default session filepath as an absolute path
     -- if true, all session files will be stored in a single directory
     absolute = false,
+
+    -- enables naming of session for the absolute mode
+    -- meant in particular for cleaner selection in a fuzzy-finder
+    named = false,
 }
 ```
 
@@ -112,6 +116,17 @@ require("sessions").setup({
     events = { "WinEnter" },
     session_filepath = vim.fn.stdpath("data") .. "/sessions",
     absolute = true,
+})
+```
+
+Additionally when named is true, the path argument in commands will be treated as session filename.
+
+```lua
+require("sessions").setup({
+    events = { "WinEnter" },
+    session_filepath = vim.fn.stdpath("data") .. "/sessions",
+    absolute = true,
+    named = true,
 })
 ```
 

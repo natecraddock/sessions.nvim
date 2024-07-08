@@ -13,6 +13,10 @@ local config = {
     -- treat the default session filepath as an absolute path
     -- if true, all session files will be stored in a single directory
     absolute = false,
+
+    -- enables naming of session for the absolute mode
+    -- meant in particular for cleaner selection in a fuzzy-finder
+    named = false,
 }
 
 local M = {}
@@ -38,9 +42,9 @@ local safe_path = function(path)
     end
 end
 
--- given a path (possibly empty or nil) returns the absolute session path or
--- the default session path if it exists. Will create intermediate directories
--- as needed. Returns nil otherwise.
+-- given a path (possibly empty or nil) returns the absolute session path
+-- or absolute named path, otherwise the default session path if it exists.
+-- Will create intermediate directories as needed. Returns nil otherwise.
 local get_session_path = function(path, ensure)
     if ensure == nil then
         ensure = true
@@ -48,6 +52,12 @@ local get_session_path = function(path, ensure)
 
     if path and path ~= "" then
         path = vim.fn.expand(path, ":p")
+        if config.named
+            and config.absolute
+            and config.session_filepath ~= ""
+            and string.sub(path, 1, 1) ~= util.path.sep then
+            path = vim.fn.expand(config.session_filepath, ":p") .. util.path.sep .. path
+        end
     elseif config.session_filepath ~= "" then
         if config.absolute then
             local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":p")

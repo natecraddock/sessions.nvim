@@ -72,7 +72,9 @@ local session_file_path = nil
 
 local write_session_file = function(path)
     local target_path = path or session_file_path
-    vim.cmd(string.format("mksession! %s", target_path))
+    if vim.fn.getcmdwintype() == "" then
+      vim.cmd(string.format("mksession! %s", target_path))
+    end
 end
 
 local start_autosave_internal = function(path)
